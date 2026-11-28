@@ -1,7 +1,21 @@
 from collectors import cpu, disk, ram
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
+
+@app.route("/api", methods=["GET"])
+def service_info():
+    return jsonify({
+        "service": "LabView System Monitoring API",
+        "status": "running",
+        "endpoint": "/status"
+    })
 
 
 @app.route("/status", methods=["GET"])
@@ -14,15 +28,6 @@ def get_status():
     }
 
     return jsonify(status)
-
-
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({
-        "service": "Ubuntu System Monitoring API",
-        "status": "running",
-        "endpoint": "/status"
-    })
 
 
 if __name__ == "__main__":
