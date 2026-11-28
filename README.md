@@ -4,11 +4,12 @@
 
 ### A tiny status window into your homelab.
 
-**Monitor your server at a glance — right from the built-in display of a UNIHIKER K10.**
+**A live, glanceable view of your homelab — in your browser or on a UNIHIKER K10.**
 
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/API-Flask-000000?style=flat-square&logo=flask&logoColor=white)
-![Hardware](https://img.shields.io/badge/Device-DFRobot%20UNIHIKER%20K10-4C9A2A?style=flat-square)
+![Flask](https://img.shields.io/badge/Flask-Web%20API-000000?style=flat-square&logo=flask&logoColor=white)
+![psutil](https://img.shields.io/badge/psutil-Metrics-3776AB?style=flat-square)
+![Device](https://img.shields.io/badge/Device-UNIHIKER%20K10-4C9A2A?style=flat-square)
 ![Platform](https://img.shields.io/badge/Server-Ubuntu%20%2F%20Linux-E95420?style=flat-square&logo=ubuntu&logoColor=white)
 
 </div>
@@ -17,9 +18,7 @@
 
 ## ✨ What is LabView?
 
-LabView is a lightweight **homelab monitoring project**. A small Python web server runs on your Ubuntu/Linux homelab machine, collects system health metrics, and makes them available as JSON. An **ESP32-powered DFRobot UNIHIKER K10** can request that data and present the latest stats on its built-in screen.
-
-> This repository contains the server-side monitoring API. The UNIHIKER K10 display client/firmware is a separate component and is not included here.
+LabView is a lightweight **homelab monitoring project**. A Python web server runs on your Ubuntu/Linux machine, collects system health metrics, and presents them in a responsive browser dashboard. The included `k10.py` client can also request the same JSON data and show it on an **ESP32-powered DFRobot UNIHIKER K10**.
 
 ## 🔎 What it monitors
 
@@ -37,20 +36,23 @@ The API currently reports:
 ┌─────────────────────────────┐       HTTP / JSON       ┌─────────────────────────────┐
 │   Ubuntu / Linux homelab     │  ───────────────────▶  │  DFRobot UNIHIKER K10       │
 │                             │      GET /status       │  ESP32 + built-in display   │
-│  Flask API + psutil metrics │                         │  Fetches and shows stats    │
+│  Flask dashboard + API      │                         │  k10.py display client      │
+│  psutil metrics             │                         │  Fetches and shows stats    │
 └─────────────────────────────┘                         └─────────────────────────────┘
 ```
 
-The server exposes a `/status` endpoint. The device connects over your network, requests the endpoint, then uses the returned values to refresh its display.
+The browser dashboard and device both use the `/status` endpoint. The dashboard refreshes automatically, and the device polls the same endpoint to refresh its display.
 
 ## 🧰 Tech stack
 
 - **Python 3** — monitoring service and metric collectors
-- **Flask** — lightweight HTTP API
+- **Flask** — web dashboard and lightweight HTTP API
 - **psutil** — CPU, memory, and disk statistics
 - **HTTP + JSON** — data exchange between the server and device
 - **Ubuntu/Linux** — target homelab server
-- **ESP32 / DFRobot UNIHIKER K10** — client device and built-in display (firmware maintained separately)
+- **MicroPython / DFRobot UNIHIKER K10** — device-side display client (`k10.py`)
+
+All technology badges above are generated with [Shields.io](https://img.shields.io).
 
 ## 🚀 Getting started
 
@@ -80,7 +82,7 @@ python -m pip install Flask psutil
 python main.py
 ```
 
-The API listens on port **5000** and binds to `0.0.0.0`, making it reachable from other devices on your local network.
+The dashboard and API listen on port **5000** and bind to `0.0.0.0`, making them reachable from other devices on your local network. Open `http://<SERVER-IP>:5000/` in a browser to view the dashboard.
 
 ### 4. Check the endpoints
 
@@ -88,10 +90,11 @@ From the server, or another machine on the same network, try:
 
 ```bash
 curl http://<SERVER-IP>:5000/
+curl http://<SERVER-IP>:5000/api
 curl http://<SERVER-IP>:5000/status
 ```
 
-Replace `<SERVER-IP>` with the homelab machine's local IP address. The status endpoint returns JSON in this shape:
+Replace `<SERVER-IP>` with the homelab machine's local IP address. `/` serves the live dashboard, `/api` returns service information, and `/status` returns JSON in this shape:
 
 ```json
 {
@@ -114,15 +117,15 @@ Replace `<SERVER-IP>` with the homelab machine's local IP address. The status en
 }
 ```
 
-Values above are illustrative. RAM and disk sizes are reported in bytes; CPU frequency is reported in MHz when available. The root endpoint (`/`) returns basic service information.
+Values above are illustrative. RAM and disk sizes are reported in bytes; CPU frequency is reported in MHz when available.
 
-### 5. Connect the UNIHIKER K10
+### 5. Set up the UNIHIKER K10
 
-Configure the device-side client to join a network that can reach the server, request `http://<SERVER-IP>:5000/status`, and render the returned CPU, RAM, and disk values on the built-in display. The client firmware is not part of this repository.
+Open `k10.py` in the UNIHIKER K10's MicroPython environment. Set `SSID`, `PASSWORD`, and `URL` near the top of the script. Use the server's **local network IP address** in `URL`, for example `http://192.168.1.20:5000/status`, then run the script on the device. Keep the server and device on networks that can reach each other.
 
 ## 🎨 The vibe
 
-A calm, glanceable homelab companion: keep the server details on the machine, and bring just the essentials to a compact desk-side display. No dashboard tab required.
+A calm, glanceable homelab companion: a dark, responsive dashboard for a quick browser check, plus a compact desk-side display for the essentials.
 
 ## 🔐 Network note
 

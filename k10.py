@@ -7,7 +7,7 @@ from unihiker_k10 import screen
 # ---------- Config ----------
 SSID = "YOUR_WIFI_SSID"
 PASSWORD = "YOUR_WIFI_PASSWORD"
-URL = "http://YOUR_HOMELAB_PUBLIC_IP:5000/status"   # use the server's IP, plain http is simplest
+URL = "http://YOUR_SERVER_IP:5000/status"   # use the server's local network IP
 REFRESH_S = 2
 
 # ---------- Colours ----------
